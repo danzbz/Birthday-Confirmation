@@ -1,10 +1,10 @@
 "use client"
 
 import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Textarea } from "@/components/ui/textarea"
+import { Button } from "./components/ui/button"
+import { Label } from "./components/ui/label"
+import { RadioGroup, RadioGroupItem } from "./components/ui/radio-group"
+import { Textarea } from "./components/ui/textarea"
 import { motion } from "framer-motion"
 import { Sparkles } from "lucide-react"
 
