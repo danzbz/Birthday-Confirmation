@@ -1,9 +1,9 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { Button } from "@/components/ui/button"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Label } from "@/components/ui/label"
+import { Button } from "../components/ui/button"
+import { RadioGroup, RadioGroupItem } from "../components/ui/radio-group"
+import { Label } from "../components/ui/label"
 import { useState } from "react"
 import { Heart, MapPin, Calendar, Clock, Gift, ExternalLink } from "lucide-react"
 import { FloatingCrown, FloralBorder } from "../components/decorative-elements"
