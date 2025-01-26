@@ -97,7 +97,7 @@ export function AnimatedCastle({ onAnimationComplete }: AnimatedCastleProps) {
 
       updateSize()
       window.addEventListener("resize", updateSize)
-
+ 
       return () => window.removeEventListener("resize", updateSize)
     }
   }, [])
