@@ -39,11 +39,6 @@ export function RsvpForm({ guestName }: RsvpFormProps) {
       >
         <Sparkles className="h-6 w-6 text-yellow-400 mx-auto mb-4" />
         <h2 className="text-xl text-pink-600 font-semibold mb-4">Obrigado pela confirmação!</h2>
-        <p className="text-purple-700">
-          {formData.get("attendance") === "sim"
-            ? "Mal podemos esperar para celebrar este momento especial com você!"
-            : "Sentiremos sua falta, mas agradecemos por nos avisar!"}
-        </p>
       </motion.div>
     )
   }
