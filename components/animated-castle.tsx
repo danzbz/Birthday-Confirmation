@@ -94,7 +94,7 @@ export function AnimatedCastle({ onAnimationComplete }: AnimatedCastleProps) {
       const updateSize = () => {
         setWindowSize({ width: window.innerWidth, height: window.innerHeight })
       }
-
+ 
       updateSize()
       window.addEventListener("resize", updateSize)
  
