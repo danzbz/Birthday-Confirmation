@@ -37,7 +37,7 @@
 //               initial={{ scale: 0.8 }}
 //               animate={{ scale: 1 }}
 //               transition={{ duration: 1 }}
-//             />
+//             /> 
 
 //             {[...Array(20)].map((_, i) => (
 //               <motion.div
