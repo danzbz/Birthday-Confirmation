@@ -175,42 +175,81 @@ import { motion } from "framer-motion"
 import { Button } from "../components/ui/button"
 import { RadioGroup, RadioGroupItem } from "../components/ui/radio-group"
 import { Label } from "../components/ui/label"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Heart, MapPin, Calendar, Clock, ExternalLink } from "lucide-react"
 import { FloatingCrown, FloralBorder } from "./decorative-elements"
-// import supabase from "../../src/supabaseClient" // Configuração do Supabase
-import supabase from "../app/src/supabaseClient" 
+import supabase from "../app/src/supabaseClient" // Ajuste para o caminho correto do seu supabaseClient
 
-interface RsvpConfirmationProps {
-  guestName?: string
-}
-
-<style>
-  .p-8 {
-    /* Adicione estilos personalizados aqui, se necessário */
-  }
-</style>
-
-export function RsvpConfirmation({ guestName = "Convidado" }: RsvpConfirmationProps) {
+export function RsvpConfirmation() {
+  const [guestName, setGuestName] = useState("") // Nome padrão caso o parâmetro "convidado" esteja ausente
+  const [displayName, setDisplayName] = useState("") // Nome de exibição obtido do Supabase
   const [confirmed, setConfirmed] = useState<boolean | null>(null)
   const [selectedValue, setSelectedValue] = useState<string>("")
   const [statusMessage, setStatusMessage] = useState<string>("")
 
+  // Capturar o parâmetro "convidado" da URL
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const name = params.get("convidado")
+    if (name) {
+      setGuestName(name)
+      fetchDisplayName(name) // Buscar nome de exibição ao carregar a página
+    }
+  }, [])
+
+  // Função para buscar o `nm_exibicao` com base no nome (parâmetro "convidado")
+  const fetchDisplayName = async (name: string) => {
+    try {
+      const { data, error } = await supabase
+        .from("Convidados")
+        .select("nm_exibicao")
+        .eq("nome", name)
+        .single() // Buscar apenas um registro
+
+      if (error) {
+        console.error("Erro ao buscar nome de exibição:", error)
+        return
+      }
+
+      if (data) {
+        setDisplayName(data.nm_exibicao || "") // Atualiza o nome de exibição
+      }
+    } catch (error) {
+      console.error("Erro ao buscar nome de exibição:", error)
+    }
+  }
+
+  // Função para confirmar presença e atualizar o registro no Supabase
   const handleConfirm = async () => {
     if (!selectedValue) return
 
     try {
-      // Fazer POST no Supabase
-      const { data, error } = await supabase.from("Convidados").insert([
-        {
-          nome: guestName,
-          sn_participar: selectedValue === "yes" ? "Sim" : "Não",
-        },
-      ])
+      const { data, error } = await supabase
+        .from("Convidados")
+        .update({
+          sn_participar: selectedValue === "yes" ? "Sim" : "Não", // Atualiza a resposta
+          dt_registro: new Date().toISOString(), // Atualiza a data de registro
+        })
+        .eq("nome", guestName) // Filtro com base no parâmetro "convidado"
 
       if (error) {
         throw error
       }
+
+       // Inserir log na tabela Convidados_log
+       const { error: insertError } = await supabase
+       .from("Convidados_log")
+       .insert([
+         {
+           nome: guestName,
+           sn_participar: selectedValue === "yes" ? "Sim" : "Não",
+           created_at: new Date().toISOString(),
+         },
+       ])
+
+     if (insertError) {
+       throw insertError
+     }
 
       setConfirmed(selectedValue === "yes")
       setStatusMessage("Resposta registrada com sucesso!")
@@ -257,7 +296,7 @@ export function RsvpConfirmation({ guestName = "Convidado" }: RsvpConfirmationPr
               <Heart className="w-12 h-12 text-pink-400 mx-auto" />
             </motion.div>
 
-            <h1 className="text-2xl font-bold text-pink-600">Olá, {guestName}!</h1>
+            <h1 className="text-2xl font-bold text-pink-600">Olá, {displayName}!</h1>
             <p className="text-purple-600">Vamos celebrar o primeiro aninho da Laurinha!</p>
 
             <div className="grid grid-cols-1 gap-4 mt-6">
@@ -290,7 +329,7 @@ export function RsvpConfirmation({ guestName = "Convidado" }: RsvpConfirmationPr
                 className="flex items-center justify-center gap-2 p-4 rounded-lg bg-pink-50/80 backdrop-blur-sm border border-pink-200"
               >
                 <Clock className="w-5 h-5 text-pink-500" />
-                <span className="text-pink-600">15:30</span>
+                <span className="text-pink-600">16:00</span>
               </motion.div>
             </div>
           </div>

@@ -6,7 +6,7 @@ import { RsvpConfirmation } from "../components/rsvp-confirmation"
 
 interface PageProps {
   searchParams: {
-    guest?: string
+    convidado?: string // Alterado para "convidado"
   }
 }
 
@@ -18,9 +18,8 @@ export default function Page({ searchParams }: PageProps) {
       {!showRsvp ? (
         <AnimatedCastle onAnimationComplete={() => setShowRsvp(true)} />
       ) : (
-        <RsvpConfirmation guestName={searchParams.guest} />
+        <RsvpConfirmation guestName={searchParams.convidado} />
       )}
     </main>
   )
 }
-
