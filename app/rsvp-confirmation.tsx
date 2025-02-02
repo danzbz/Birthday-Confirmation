@@ -1,20 +1,49 @@
 "use client"
 
 import { motion } from "framer-motion"
+import { useState } from "react"
 import { Button } from "../components/ui/button"
 import { RadioGroup, RadioGroupItem } from "../components/ui/radio-group"
 import { Label } from "../components/ui/label"
-import { useState } from "react"
-import { Heart, MapPin, Calendar, Clock, Gift, ExternalLink } from "lucide-react"
+import { Heart, MapPin, Calendar, Clock, ExternalLink } from "lucide-react"
 import { FloatingCrown, FloralBorder } from "../components/decorative-elements"
+import supabase from "../app/src/supabaseClient" // Ajuste para o caminho correto do seu supabaseClient
 
-interface RsvpConfirmationProps {
-  guestName?: string
-}
-
-export function RsvpConfirmation({ guestName = "Convidado" }: RsvpConfirmationProps) {
+export function RsvpConfirmation() {
+  const [guestName, setGuestName] = useState("") // Nome digitado pelo convidado
   const [confirmed, setConfirmed] = useState<boolean | null>(null)
   const [selectedValue, setSelectedValue] = useState<string>("")
+  const [statusMessage, setStatusMessage] = useState<string>("")
+
+  // Função para confirmar presença e salvar no banco de dados
+  const handleConfirm = async () => {
+    if (!guestName.trim() || !selectedValue) {
+      setStatusMessage("Por favor, digite seu nome e selecione uma opção.")
+      return
+    }
+
+    try {
+      const { error } = await supabase
+        .from("presenca")
+        .insert([
+          {
+            nome: guestName.trim(), // Nome do convidado digitado
+            sn_participar: selectedValue === "yes" ? "Sim" : "Não", // Confirmação
+            data_cadastro: new Date().toISOString(), // Timestamp
+          },
+        ])
+
+      if (error) {
+        throw error
+      }
+
+      setConfirmed(selectedValue === "yes")
+      setStatusMessage("Resposta registrada com sucesso!")
+    } catch (error) {
+      console.error("Erro ao registrar no Supabase:", error)
+      setStatusMessage("Erro ao registrar sua resposta. Tente novamente.")
+    }
+  }
 
   const handleLocationClick = () => {
     window.open("https://maps.google.com", "_blank")
@@ -22,15 +51,17 @@ export function RsvpConfirmation({ guestName = "Convidado" }: RsvpConfirmationPr
 
   return (
     <div className="min-h-screen relative overflow-hidden">
-      {/* Background with castle */}
+      {/* Background com castelo */}
       <div
         className="absolute inset-0 bg-cover bg-center opacity-15"
         style={{
-          backgroundImage: `url(${encodeURI("https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-G5tUqAlZQL5V0UzuvdGJR2ReWxp5Oj.png")})`,
+          backgroundImage: `url(${encodeURI(
+            "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-G5tUqAlZQL5V0UzuvdGJR2ReWxp5Oj.png"
+          )})`,
         }}
       />
 
-      {/* Gradient overlay */}
+      {/* Gradiente de overlay */}
       <div className="absolute inset-0 bg-gradient-to-b from-pink-100/90 to-purple-100/90" />
 
       <FloralBorder position="top" />
@@ -43,16 +74,23 @@ export function RsvpConfirmation({ guestName = "Convidado" }: RsvpConfirmationPr
         className="min-h-screen relative flex items-center justify-center p-4"
       >
         <div className="max-w-md w-full space-y-8 bg-white/80 backdrop-blur-sm p-8 rounded-2xl shadow-xl border border-pink-200">
-          {/*<FloatingCrown />*/}
-
           <div className="text-center space-y-4 mt-8">
             <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.5 }}>
               <Heart className="w-12 h-12 text-pink-400 mx-auto" />
             </motion.div>
 
-            <h1 className="text-2xl font-bold text-pink-600">Olá, {guestName}!</h1>
+            <h1 className="text-2xl font-bold text-pink-600">Olá, {guestName || "Convidado"}!</h1>
 
-            <p className="text-purple-600">Vamos celebrar o primeiro aninho da Laurinha !</p>
+            <p className="text-purple-600">Vamos celebrar o primeiro aninho da Laurinha!</p>
+
+            {/* Input para digitar o nome */}
+            <input
+              type="text"
+              placeholder="Digite seu nome..."
+              value={guestName}
+              onChange={(e) => setGuestName(e.target.value)}
+              className="w-full p-3 border border-pink-300 rounded-lg text-pink-600 focus:outline-none focus:ring focus:ring-pink-400"
+            />
 
             <div className="grid grid-cols-1 gap-4 mt-6">
               <motion.button
@@ -84,7 +122,7 @@ export function RsvpConfirmation({ guestName = "Convidado" }: RsvpConfirmationPr
                 className="flex items-center justify-center gap-2 p-4 rounded-lg bg-pink-50/80 backdrop-blur-sm border border-pink-200"
               >
                 <Clock className="w-5 h-5 text-pink-500" />
-                <span className="text-pink-600">15:30</span>
+                <span className="text-pink-600">16:00</span>
               </motion.div>
 
               <motion.a
@@ -101,6 +139,7 @@ export function RsvpConfirmation({ guestName = "Convidado" }: RsvpConfirmationPr
                 </svg>
                 <span className="text-green-600">Falar com a Mamãe</span>
               </motion.a>
+
             </div>
           </div>
 
@@ -128,14 +167,8 @@ export function RsvpConfirmation({ guestName = "Convidado" }: RsvpConfirmationPr
               </RadioGroup>
 
               <Button
-                onClick={() => {
-                  if (selectedValue === "yes") {
-                    setConfirmed(true)
-                  } else if (selectedValue === "no") {
-                    setConfirmed(false)
-                  }
-                }}
-                disabled={!selectedValue}
+                onClick={handleConfirm}
+                disabled={!guestName.trim() || !selectedValue}
                 className="w-full bg-gradient-to-r from-pink-400 to-purple-400 hover:from-pink-500 hover:to-purple-500 text-white font-medium py-2 rounded-lg shadow-md transition-all duration-200 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Confirmar Presença
@@ -152,6 +185,7 @@ export function RsvpConfirmation({ guestName = "Convidado" }: RsvpConfirmationPr
                   ? "Que felicidade! Estamos ansiosos para comemorar esse momento especial ao seu lado!"
                   : "Sentiremos sua falta, mas agradecemos por nos avisar!"}
               </p>
+              {statusMessage && <p className="text-sm text-gray-500">{statusMessage}</p>}
             </motion.div>
           )}
         </div>
@@ -159,4 +193,3 @@ export function RsvpConfirmation({ guestName = "Convidado" }: RsvpConfirmationPr
     </div>
   )
 }
-
