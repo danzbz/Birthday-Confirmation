@@ -154,7 +154,7 @@ export function AnimatedCastle({ onAnimationComplete }: AnimatedCastleProps) {
           {/* Imagem do castelo */}
           <motion.div className="relative max-w-md w-full">
             <motion.img
-              src="https://imgur.com/rpqjB80.png"
+              src="https://i.imgur.com/hbZ1y5D.jpeg"
               alt="Castelo de Aniversário"
               className="w-full"
               initial={{ scale: 0.8 }}

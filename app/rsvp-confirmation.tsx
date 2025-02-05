@@ -46,7 +46,7 @@ export function RsvpConfirmation() {
   }
 
   const handleLocationClick = () => {
-    window.open("https://maps.google.com", "_blank")
+    window.open("https://maps.app.goo.gl/izqckaNLGKAd7gsn6", "_blank")
   }
 
   return (
